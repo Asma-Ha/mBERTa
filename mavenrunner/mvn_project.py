@@ -107,7 +107,7 @@ class MvnProject(MbertProject):
             raise e
 
     def compile_command(self) -> str:
-        return self.cmd_base() + " compile"
+        return self.cmd_base() + " compile" + " -Dcheckstyle.skip"
 
     def on_has_compiled(self, output) -> bool:
         text = output.stdout
@@ -129,7 +129,7 @@ class MvnProject(MbertProject):
         if target_tests is not None:
             args_arr.append('-Dtest=' + target_tests)
 
-        cmd_arr = [self.cmd_base(), "'" + ' '.join(args_arr) + "'", 'test']
+        cmd_arr = [self.cmd_base(), "'" + ' '.join(args_arr) + "'", 'test -Dcheckstyle.skip']
         return ' '.join(cmd_arr)
 
     def on_tests_run(self, test_exec_output) -> Set[MvnFailingTest]:

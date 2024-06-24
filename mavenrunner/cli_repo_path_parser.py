@@ -20,11 +20,11 @@ class RepoCliInfos(BaseModel):
         return (self.git_url is None or len(self.git_url) == 0) and (self.repo_path is None or len(self.repo_path) == 0)
 
 
-def parse_repo_cli_infos(cli_args) -> RepoCliInfos:
+def parse_repo_cli_infos(cli_args, csv_path) -> RepoCliInfos:
     if cli_args is None:
         raise Exception('No args passed!')
-    if cli_args.project_url_csv is not None and isfile(cli_args.project_url_csv):
-        df = pd.read_csv(cli_args.project_url_csv, sep=';')
+    if cli_args.project_url_csv is not None and csv_path is not None and isfile(csv_path):
+        df = pd.read_csv(csv_path, sep=';')
         if len(df) != 1:
             raise Exception('expected one row dataset but received {0} rows'.format(str(len(df))))
         row = df.loc[0]

@@ -47,9 +47,10 @@ def get_args():
                                      'mbert_config.yml'))  # i.e. , default=os.path.expanduser('~/PycharmProjects/CBMuPy/d4j/mbert/local_config.yml'))
     args = parser.parse_args()
 
-    if (not isfile(args.config) and not isfile(os.path.expanduser(args.config))) or (
-            args.repo_path is None and args.git_url is None and (
-            args.project_url_csv is None or not isfile(args.project_url_csv))):
+    if not isfile(args.config) and not isfile(os.path.expanduser(args.config)):
+        parser.print_help()
+        raise AttributeError
+    if args.repo_path is None and args.git_url is None and args.target_files is None and args.project_url_csv is None:
         parser.print_help()
         raise AttributeError
     if args.target_files_csv is not None and args.target_files is not None:
@@ -95,7 +96,17 @@ def create_request(config, project_cli_infos: RepoCliInfos, reqs: Dict[BusinessF
 
 
 def main_function(conf, cli_args):
-    project_cli_infos: RepoCliInfos = parse_repo_cli_infos(cli_args)
+    config = load_config(conf)
+
+    #dataset :
+    dataset_dir = 'containing_dir' in config['dataset'] and config['dataset']['containing_dir']
+    project_url_csv_full_path = os.path.join(dataset_dir, cli_args.project_url_csv)
+    if project_url_csv_full_path is None or not isfile(os.path.expanduser(project_url_csv_full_path)):
+        logging.error("Project csv file is not valid")
+
+    else :
+        print('path to project csv file: {}'.format(project_url_csv_full_path))
+    project_cli_infos: RepoCliInfos = parse_repo_cli_infos(cli_args, os.path.expanduser(project_url_csv_full_path))
     if project_cli_infos is None or project_cli_infos.invalid():
         raise Exception('wrong arguments!')
     print('--- running mbert on:\n' + project_cli_infos.json(indent=4, sort_keys=True))
