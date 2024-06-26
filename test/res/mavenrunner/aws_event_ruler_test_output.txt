@@ -1,0 +1,32 @@
+
+
+testEvaluateAnythingButWildcardMultiplePatterns(software.amazon.event.ruler.MachineComplexityEvaluatorTest)  Time elapsed: 0 sec  <<< FAILURE!
+
+
+Running software.amazon.event.ruler.NameStateWithPatternTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 sec
+Running software.amazon.event.ruler.RuleCompilerTest
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.312 sec
+
+Results :
+
+Failed tests:   testWildcardWithAnythingButPrefixPatternWildcardStartsWithPrefix(software.amazon.event.ruler.ByteMachineTest): Failed on  expected:<0> but was:<1>
+  testWildcardWithAnythingButPrefixPatternWildcardStartsWithHalfOfPrefix(software.amazon.event.ruler.ByteMachineTest): Failed on  expected:<0> but was:<1>
+  WHEN_AnythingButPrefixPatternIsAdded_THEN_ItMatchesAppropriately(software.amazon.event.ruler.ByteMachineTest): expected:<0> but was:<1>
+  testAnythingButEqualsIgnoreCase(software.amazon.event.ruler.ACMachineTest)
+
+Tests run: 665, Failures: 4, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:01 min
+[INFO] Finished at: 2024-06-25T18:21:51+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.12.4:test (default-test) on project event-ruler: There are test failures.
+[ERROR]
+[ERROR] Please refer to /home/asmahamidi/code/mBERTa/tmp/mvn_projects/aws_event_ruler_2/target/surefire-reports for the individual test results.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable

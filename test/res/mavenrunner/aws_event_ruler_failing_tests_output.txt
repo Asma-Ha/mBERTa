@@ -1,0 +1,25 @@
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:189)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:165)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)
+
+
+Results :
+
+Failed tests:   WHEN_WeTryAnythingButRules_THEN_Theywork(software.amazon.event.ruler.RulerTest): {    "a": "child1",(..)
+  testBuild(software.amazon.event.ruler.ACMachineTest): Event {"alpha":1,"beta":2,"gamma":3}(..)
+  testBuild(software.amazon.event.ruler.MachineTest): Event Tokens: alpha / 1 / beta / 2 / gamma / 3 /  Expected: R1 / (..)
+  testExistencePatternsLifecycle(software.amazon.event.ruler.MachineTest): Event Tokens: a / "1" / b / "b_val" / d / 3 /  Expected: rule1 / rule2 / (..)
+  matchRuleWithExistencePatternAtEnd_andMatchesAtEventAfterAllFieldsHaveExhausted(software.amazon.event.ruler.MachineTest): Event Tokens: a / "Y" / b / 20 / c / "YES" /  Expected: rule1 / (..)
+
+
+
+Tests run: 665, Failures: 5, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:19 min
+[INFO] Finished at: 2024-06-25T20:17:54+01:00

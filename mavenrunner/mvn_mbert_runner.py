@@ -47,9 +47,10 @@ def get_args():
                                      'mbert_config.yml'))  # i.e. , default=os.path.expanduser('~/PycharmProjects/CBMuPy/d4j/mbert/local_config.yml'))
     args = parser.parse_args()
 
-    if (not isfile(args.config) and not isfile(os.path.expanduser(args.config))) or (
-            args.repo_path is None and args.git_url is None and (
-            args.project_url_csv is None or not isfile(args.project_url_csv))):
+    if not isfile(args.config) and not isfile(os.path.expanduser(args.config)):
+        parser.print_help()
+        raise AttributeError
+    if args.repo_path is None and args.git_url is None and args.target_files is None and args.project_url_csv is None:
         parser.print_help()
         raise AttributeError
     if args.target_files_csv is not None and args.target_files is not None:
@@ -96,6 +97,14 @@ def create_request(config, project_cli_infos: RepoCliInfos, reqs: Dict[BusinessF
 # todo refactor config and args parsing, because it starts to get very complex to follow.
 
 def main_function(conf, cli_args):
+    config = load_config(conf)
+
+    #dataset :
+    dataset_dir = 'containing_dir' in config['dataset'] and config['dataset']['containing_dir']
+    project_name = cli_args.project_url_csv
+    cli_args.project_url_csv = os.path.expanduser(os.path.join(dataset_dir, project_name))
+    cli_args.target_files_csv = cli_args.project_url_csv
+
     project_cli_infos: RepoCliInfos = parse_repo_cli_infos(cli_args)
     if project_cli_infos is None or project_cli_infos.invalid():
         raise Exception('wrong arguments!')

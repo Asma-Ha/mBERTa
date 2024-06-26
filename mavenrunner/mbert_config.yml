@@ -3,8 +3,10 @@
   maven: /opt/maven
   java:
     # path to your JAVA_HOME. optional if you have JAVA_HOME in your path
-    home8:  /usr/lib/jvm/java-8-openjdk-amd64/
-    home11:  /usr/lib/jvm/java-11-openjdk-amd64/
+    home8 : /usr/lib/jvm/java-8-openjdk-amd64/
+    home11: /home/asmahamidi/Downloads/jdk-11.0.16/
+  dataset :
+      containing_dir: ~/code/mBERTa/mavenrunner/dataset/dataset
   tmp_large_memory:
     # where the repository will be cloned.
     repos_path:  ~/code/mBERTa/tmp/mvn_projects

@@ -53,13 +53,16 @@ class MvnFailingTest(BaseModel):
 
             },
             TestReportCategory.JUnit: {
-                FailCategory.Fail: ["""-Failed tests: {{ method_name }}({{ class_name }}): {{ reason | ORPHRASE }}""",
-                                    """-Failed tests: {{ method_name }}({{ class_name }})""", ],
+                FailCategory.Fail: [
+                    """-Failed tests:  {{ method_name }}({{ class_name }}): {{ reason | re(".*")  }}""",
+                    """-Failed tests:  {{ method_name }}({{ class_name }})""", ],
                 FailCategory.Err: [
-                    """-Tests in error: \n-  {{ method_name }}({{ class_name }}): {{ reason | ORPHRASE }}""",
-                    """-Tests in error: \n-  {{ method_name }}({{ class_name }})"""],
-                FailCategory.Ukn: ["""- {{ method_name }}({{ class_name }}): {{ reason | ORPHRASE }}""",
-                                   """- {{ method_name }}({{ class_name }})"""]
+                    """-Tests in error: {{ _start_ }}-  {{ method_name }}({{ class_name }}): {{ reason | re(".*") }}""",
+                    """-Tests in error: {{ _start_ }}-  {{ method_name }}({{ class_name }})"""],
+                FailCategory.Ukn: [
+                    """- {{ method_name }}({{ class_name }}): {{ reason | re(".*") }}""",
+                    """- {{ method_name }}({{ class_name }})"""],
+
             },
         }
 
@@ -119,7 +122,14 @@ def parse_to_json(data_to_parse, template) -> str:
 
 
 def parse_junit_test_report(results_str, category):
-    parsed = MvnFailingTestsArray.parse_raw(results_str)
+    results_json = json.loads(results_str)
+    for rj in results_json:
+        if isinstance(rj, dict):
+            if len(rj) > 0:
+                parsed = MvnFailingTestsArray.parse_raw(results_str)
+        elif isinstance(rj, List):
+                parsed = MvnFailingTestsArray.parse_raw(json.dumps(rj))
+
     parsed.remove_invalid()
     if len(parsed.__root__) == 0:
         # quick fix for when we get an array of array for no reason.
@@ -211,16 +221,18 @@ def parse_broken_tests(data_to_parse) -> Set[MvnFailingTest]:
         for category in template_dict[group]:
             for template in template_dict[group][category]:
                 results_str = parse_to_json(data_to_parse_without_less, template)
-                if group == TestReportCategory.Surefire and ('method_name' in results_str or 'class_name' in results_str):
-                    if category == FailCategory.Ukn:
-                        classes = parse_surefire_test_classes(results_str)
+                if 'method_name' in results_str or 'class_name' in results_str:
+                    if group == TestReportCategory.Surefire:
+                        if category == FailCategory.Ukn:
+                            classes = parse_surefire_test_classes(results_str)
+                        else:
+                            if category == FailCategory.Fail:
+                                unique_broken_tests.update(parse_surefire_test_failures(results_str, category, classes))
+                            elif category == FailCategory.Err:
+                                unique_broken_tests.update(parse_surefire_test_errors(results_str, category, classes))
                     else:
-                        if category == FailCategory.Fail:
-                            unique_broken_tests.update(parse_surefire_test_failures(results_str, category, classes))
-                        elif category == FailCategory.Err:
-                            unique_broken_tests.update(parse_surefire_test_errors(results_str, category, classes))
-                else:
-                    unique_broken_tests.update(parse_junit_test_report(results_str, category))
+
+                        unique_broken_tests.update(parse_junit_test_report(results_str, category))
 
         if len(unique_broken_tests) > 0:
             return unique_broken_tests

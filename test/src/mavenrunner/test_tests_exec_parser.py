@@ -16,6 +16,10 @@ class TestMvnProject(TestCase):
             join(self.RES_PATH, 'mavenrunner/one_test_class_mvn_surefire_output.txt'))
         self.surefire_no_errors = load_file(
             join(self.RES_PATH, 'mavenrunner/no_error_mvn_surefire_output.txt'))
+        self.aws_event_ruler = load_file(
+            join(self.RES_PATH, 'mavenrunner/aws_event_ruler_test_output.txt'))
+        self.aws_event_ruler_failing_tests = load_file(
+            join(self.RES_PATH, 'mavenrunner/aws_event_ruler_failing_tests_output.txt'))
         self.surefire_two_test_class = load_file(
             join(self.RES_PATH, 'mavenrunner/two_test_class_mvn_surefire_output.txt'))
         self.surefire_three_error_three_fail = load_file(
@@ -268,6 +272,56 @@ class TestMvnProject(TestCase):
                             failing_category=FailCategory.Err),
              },
             exec_res_to_broken_tests_arr(self.surefire_three_error_three_fail))
+
+    def test_exec_res_to_broken_tests_aws_event_ruler(self):
+        self.assertEqual(
+            {MvnFailingTest(method_name='testWildcardWithAnythingButPrefixPatternWildcardStartsWithPrefix',
+                            class_name='software.amazon.event.ruler.ByteMachineTest',
+                            reason='Failed on  expected:<0> but was:<1>',
+                            failing_category=FailCategory.Fail),
+             MvnFailingTest(method_name='testWildcardWithAnythingButPrefixPatternWildcardStartsWithHalfOfPrefix',
+                            class_name='software.amazon.event.ruler.ByteMachineTest',
+                            reason='Failed on  expected:<0> but was:<1>',
+                            failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='WHEN_AnythingButPrefixPatternIsAdded_THEN_ItMatchesAppropriately',
+                 class_name='software.amazon.event.ruler.ByteMachineTest',
+                 reason='expected:<0> but was:<1>',
+                 failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='testAnythingButEqualsIgnoreCase',
+                 class_name='software.amazon.event.ruler.ACMachineTest',
+                 failing_category=FailCategory.Fail),
+             },
+            exec_res_to_broken_tests_arr(self.aws_event_ruler))
+
+    def test_exec_res_to_broken_tests_aws_event_ruler_failing_tests(self):
+        self.assertEqual(
+            {MvnFailingTest(method_name='WHEN_WeTryAnythingButRules_THEN_Theywork',
+                            class_name='software.amazon.event.ruler.RulerTest',
+                            reason='{    "a": "child1",(..)',
+                            failing_category=FailCategory.Fail),
+             MvnFailingTest(method_name='testBuild',
+                            class_name='software.amazon.event.ruler.ACMachineTest',
+                            reason='Event {"alpha":1,"beta":2,"gamma":3}(..)',
+                            failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='testBuild',
+                 class_name='software.amazon.event.ruler.MachineTest',
+                 reason='Event Tokens: alpha / 1 / beta / 2 / gamma / 3 /  Expected: R1 / (..)',
+                 failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='testExistencePatternsLifecycle',
+                 class_name='software.amazon.event.ruler.MachineTest',
+                 reason='Event Tokens: a / "1" / b / "b_val" / d / 3 /  Expected: rule1 / rule2 / (..)',
+                 failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='matchRuleWithExistencePatternAtEnd_andMatchesAtEventAfterAllFieldsHaveExhausted',
+                 class_name='software.amazon.event.ruler.MachineTest',
+                 reason='Event Tokens: a / "Y" / b / 20 / c / "YES" /  Expected: rule1 / (..)',
+                 failing_category=FailCategory.Fail),
+             },
+            exec_res_to_broken_tests_arr(self.aws_event_ruler_failing_tests))
 
     def test_exec_res_to_broken_tests_no_errors_surefire(self):
         self.assertEqual(set(),
