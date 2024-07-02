@@ -43,13 +43,15 @@ class MvnFailingTest(BaseModel):
         return hash((self.method_name, self.class_name, self.reason))
 
     @staticmethod
-    def get_template() -> dict[TestReportCategory, dict[FailCategory, list[str]]]:
+    def get_template() -> Dict[TestReportCategory, Dict[FailCategory, List[str]]]:
         return {
             TestReportCategory.Surefire: {
                 FailCategory.Ukn: [
-                    """-[ERROR] Tests run: {{ ignore }}, Failures: {{ fa_class }}, Errors: {{ err_class }}, Skipped: {{ sk_class }}, Time elapsed: {{ ignore }} s *** FAILURE! - in {{class_name}}"""],
-                FailCategory.Fail: ["""-[ERROR] {{ method_name }}  Time elapsed: {{ ignore }} s *** FAILURE!"""],
-                FailCategory.Err: ["""-[ERROR] {{ method_name }} Time elapsed: {{ ignore }} s *** ERROR!"""],
+                    """-[ERROR] Tests run: {{ ignore }}, Failures: {{ fa_class }}, Errors: {{ err_class }}, Skipped: {{ sk_class }}, Time elapsed: {{ ignore }} s *** FAILURE! {{ ignore }} in {{class_name}}"""],
+                FailCategory.Fail: ["""-[ERROR] {{ method_name }} Time elapsed: {{ ignore }} s *** FAILURE!""",
+                                    """-[ERROR] {{ method_name | re(".*") }} -- Time elapsed: {{ ignore }} s *** FAILURE!"""],
+                FailCategory.Err: ["""-[ERROR] {{ method_name }} Time elapsed: {{ ignore }} s *** ERROR!""",
+                                   """-[ERROR] {{ method_name | re(".*") }} -- Time elapsed: {{ ignore }} s *** ERROR!"""],
 
             },
             TestReportCategory.JUnit: {
@@ -124,7 +126,7 @@ def parse_to_json(data_to_parse, template) -> str:
 def parse_junit_test_report(results_str, category):
     results_json = json.loads(results_str)
     for rj in results_json:
-        if isinstance(rj, dict):
+        if isinstance(rj, Dict):
             if len(rj) > 0:
                 parsed = MvnFailingTestsArray.parse_raw(results_str)
         elif isinstance(rj, List):
@@ -153,10 +155,10 @@ def parse_surefire_test_classes(results_str):
     #get list of classes
     results_json = json.loads(results_str)
     for rj in results_json:
-        if isinstance(rj, dict):
+        if isinstance(rj, Dict):
             classes.append({'class_name': rj['class_name'], 'total_fa': rj['fa_class'], 'total_sk': rj['sk_class'],
                             'total_err': rj['err_class']})
-        elif isinstance(rj, list):
+        elif isinstance(rj, List):
             for c in rj:
                     classes.append({'class_name': c['class_name'], 'total_fa': c['fa_class'], 'total_sk': c['sk_class'], 'total_err' : c['err_class']})
 
@@ -168,9 +170,9 @@ def parse_surefire_test_failures(results_str, category, classes) :
     results_json = json.loads(results_str)
     for rj in results_json:
         if len(rj) > 0:
-            if isinstance(rj, dict):
+            if isinstance(rj, Dict):
                 methods.append({'method_name': rj['method_name']})
-            elif isinstance(rj, list):
+            elif isinstance(rj, List):
                 for m in rj:
                     methods.append({'method_name': m['method_name']})
 
@@ -192,9 +194,9 @@ def parse_surefire_test_errors(results_str, category, classes):
     results_json = json.loads(results_str)
     for rj in results_json:
         if len(rj) > 0:
-            if isinstance(rj, dict):
+            if isinstance(rj, Dict):
                 methods.append({'method_name': rj['method_name']})
-            elif isinstance(rj, list) :
+            elif isinstance(rj, List) :
                 for m in rj:
                     methods.append({'method_name': m['method_name']})
 
@@ -249,7 +251,7 @@ def exec_res_to_broken_tests_arr(data_to_parse) -> Set[MvnFailingTest]:
         raise Exception("0 tests run!")
     if exec_summary.fa > 0 or exec_summary.err > 0:
         unique_broken_tests = parse_broken_tests(data_to_parse)
-        if len(unique_broken_tests) != exec_summary.err + exec_summary.fa:
+        if len(unique_broken_tests) < exec_summary.err + exec_summary.fa:
             log.critical(
                 "Wrong tests parsing! "
                 "Received different number of tests when parsing the results than parsing the failing tests!"
@@ -259,6 +261,11 @@ def exec_res_to_broken_tests_arr(data_to_parse) -> Set[MvnFailingTest]:
             log.critical(' --- instead of:\n{0}'.format(exec_summary.json()))
             log.critical('--- data to parse \n ' + data_to_parse)
             raise Exception("Wrong tests parsing! Received different number of Errors and Failures!")
+        elif len(unique_broken_tests) > exec_summary.err + exec_summary.fa:
+            log.error(
+                "Wrong tests parsing! "
+                "Received different number of tests when parsing the results than parsing the failing tests!"
+                " \n --- parsed:")
 
         # just trying to add types for the unkown ones by checking whether we have all error and failing ones.
         tests_with_unkown_failing = {t for t in unique_broken_tests if t.failing_category == FailCategory.Ukn}

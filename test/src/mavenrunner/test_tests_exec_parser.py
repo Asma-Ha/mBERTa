@@ -18,6 +18,8 @@ class TestMvnProject(TestCase):
             join(self.RES_PATH, 'mavenrunner/no_error_mvn_surefire_output.txt'))
         self.aws_event_ruler = load_file(
             join(self.RES_PATH, 'mavenrunner/aws_event_ruler_test_output.txt'))
+        self.semverj = load_file(
+            join(self.RES_PATH, 'mavenrunner/semverj_test_output.txt'))
         self.aws_event_ruler_failing_tests = load_file(
             join(self.RES_PATH, 'mavenrunner/aws_event_ruler_failing_tests_output.txt'))
         self.surefire_two_test_class = load_file(
@@ -263,13 +265,14 @@ class TestMvnProject(TestCase):
              MvnFailingTest(method_name='should_ignore_test_when_assumption_fails{AssumptionRunner}[7]',
                             class_name='org.assertj.vavr.api.Either_assertion_methods_in_assumptions_Test',
                             failing_category=FailCategory.Err),
+             MvnFailingTest(method_name='should_be_able_to_catch_exceptions_thrown_by_all_proxied_methods',
+                            class_name='org.assertj.vavr.api.soft.SoftVavrAssertionsTest',
+                            failing_category=FailCategory.Err),
              MvnFailingTest(
                  method_name='should_be_able_to_catch_exceptions_thrown_by_all_proxied_methods',
                  class_name='org.assertj.vavr.api.soft.AutoCloseableSoftVavrAssertionsTest',
                  failing_category=FailCategory.Err),
-             MvnFailingTest(method_name='should_be_able_to_catch_exceptions_thrown_by_all_proxied_methods',
-                            class_name='org.assertj.vavr.api.soft.SoftVavrAssertionsTest',
-                            failing_category=FailCategory.Err),
+
              },
             exec_res_to_broken_tests_arr(self.surefire_three_error_three_fail))
 
@@ -322,6 +325,34 @@ class TestMvnProject(TestCase):
                  failing_category=FailCategory.Fail),
              },
             exec_res_to_broken_tests_arr(self.aws_event_ruler_failing_tests))
+
+    def test_exec_res_to_broken_tests_semverj(self):
+        self.assertEqual(
+            {MvnFailingTest(method_name='org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[1]',
+                            class_name='org.semver4j.internal.StrictParserTest',
+                            failing_category=FailCategory.Fail),
+
+             MvnFailingTest(method_name='org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[2]',
+                            class_name='org.semver4j.internal.StrictParserTest',
+                            failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[3]',
+                 class_name='org.semver4j.internal.StrictParserTest',
+                 failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[20]',
+                 class_name='org.semver4j.internal.StrictParserTest',
+                 failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[21]',
+                 class_name='org.semver4j.internal.StrictParserTest',
+                 failing_category=FailCategory.Fail),
+             MvnFailingTest(
+                 method_name='org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[22]',
+                 class_name='org.semver4j.internal.StrictParserTest',
+                 failing_category=FailCategory.Fail),
+             },
+            exec_res_to_broken_tests_arr(self.semverj))
 
     def test_exec_res_to_broken_tests_no_errors_surefire(self):
         self.assertEqual(set(),

@@ -1,0 +1,100 @@
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.semver4j.SemverTest
+[INFO] Tests run: 519, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.558 s -- in org.semver4j.SemverTest
+[INFO] Running org.semver4j.RangesExpressionTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in org.semver4j.RangesExpressionTest
+[INFO] Running org.semver4j.internal.range.RangeProcessorPipelineTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in org.semver4j.internal.range.RangeProcessorPipelineTest
+[INFO] Running org.semver4j.internal.range.processor.CaretProcessorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in org.semver4j.internal.range.processor.CaretProcessorTest
+[INFO] Running org.semver4j.internal.range.processor.IvyProcessorTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in org.semver4j.internal.range.processor.IvyProcessorTest
+[INFO] Running org.semver4j.internal.range.processor.GreaterThanOrEqualZeroProcessorTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in org.semver4j.internal.range.processor.GreaterThanOrEqualZeroProcessorTest
+[INFO] Running org.semver4j.internal.StrictParserTest
+[ERROR] Tests run: 74, Failures: 6, Errors: 0, Skipped: 0, Time elapsed: 0.051 s <<< FAILURE! -- in org.semver4j.internal.StrictParserTest
+[ERROR] org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[1] -- Time elapsed: 0.021 s <<< FAILURE!
+org.opentest4j.AssertionFailedError:
+
+expected: Version[major=4, minor=0, patch=4, preRelease=[], build=[]]
+ but was: Version[major=0, minor=0, patch=4, preRelease=[], build=[]]
+
+
+[ERROR] org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[2] -- Time elapsed: 0.001 s <<< FAILURE!
+org.opentest4j.AssertionFailedError:
+
+expected: Version[major=3, minor=2, patch=3, preRelease=[], build=[]]
+ but was: Version[major=1, minor=2, patch=3, preRelease=[], build=[]]
+
+
+[ERROR] org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[3] -- Time elapsed: 0 s <<< FAILURE!
+org.opentest4j.AssertionFailedError:
+
+expected: Version[major=30, minor=20, patch=30, preRelease=[], build=[]]
+ but was: Version[major=10, minor=20, patch=30, preRelease=[], build=[]]
+
+[ERROR] org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[20] -- Time elapsed: 0 s <<< FAILURE!
+org.opentest4j.AssertionFailedError:
+
+expected: Version[major=0, minor=0, patch=0, preRelease=[], build=[]]
+
+
+[ERROR] org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[21] -- Time elapsed: 0 s <<< FAILURE!
+org.opentest4j.AssertionFailedError:
+
+expected: Version[major=0, minor=0, patch=0, preRelease=[], build=[]]
+
+[ERROR] org.semver4j.internal.StrictParserTest.shouldParseValidVersions(String, Version)[22] -- Time elapsed: 0 s <<< FAILURE!
+org.opentest4j.AssertionFailedError:
+
+expected: Version[major=7, minor=1, patch=7, preRelease=[], build=[]]
+
+[INFO] Running org.semver4j.RangesListTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in org.semver4j.RangesListTest
+[INFO] Running org.semver4j.RangeTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in org.semver4j.RangeTest
+[INFO] Running org.semver4j.RangesListFactoryTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in org.semver4j.RangesListFactoryTest
+[INFO]
+[INFO] Results:
+[INFO]
+[ERROR] Failures:
+[ERROR]   StrictParserTest.shouldParseValidVersions:30
+expected: Version[major=4, minor=0, patch=4, preRelease=[], build=[]]
+ but was: Version[major=0, minor=0, patch=4, preRelease=[], build=[]]
+[ERROR]   StrictParserTest.shouldParseValidVersions:30
+expected: Version[major=0, minor=0, patch=0, preRelease=[], build=[]]
+ but was: Version[major=1, minor=0, patch=0, preRelease=[], build=[]]
+[ERROR]   StrictParserTest.shouldParseValidVersions:30
+expected: Version[major=0, minor=0, patch=0, preRelease=[], build=[]]
+ but was: Version[major=2, minor=0, patch=0, preRelease=[], build=[]]
+[ERROR]   StrictParserTest.shouldParseValidVersions:30
+expected: Version[major=7, minor=1, patch=7, preRelease=[], build=[]]
+ but was: Version[major=1, minor=1, patch=7, preRelease=[], build=[]]
+[ERROR]   StrictParserTest.shouldParseValidVersions:30
+expected: Version[major=3, minor=2, patch=3, preRelease=[], build=[]]
+ but was: Version[major=1, minor=2, patch=3, preRelease=[], build=[]]
+[ERROR]   StrictParserTest.shouldParseValidVersions:30
+expected: Version[major=30, minor=20, patch=30, preRelease=[], build=[]]
+ but was: Version[major=10, minor=20, patch=30, preRelease=[], build=[]]
+[INFO]
+[ERROR] Tests run: 643, Failures: 6, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.042 s
+[INFO] Finished at: 2024-06-27T15:04:27+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.3.0:test (default-test) on project semver4j: There are test failures.
+[ERROR]
+[ERROR] Please refer to /home/asmahamidi/code/mBERTa/tmp/mvn_projects/c_0/semver4j_semver4j_2/target/surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
