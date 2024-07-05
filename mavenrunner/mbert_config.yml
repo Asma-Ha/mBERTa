@@ -26,6 +26,8 @@
     mask_full_conditions: False
     # Turn this to True if you want to generate only simple mutants without the condition seeding ones.
     simple_only: True
+    # Turn this to True if you want to add the identifiers in the scope to the input of the language model
+    augment_prompt_with_ids : True
 
     language_model:
         model_name: codeBERT

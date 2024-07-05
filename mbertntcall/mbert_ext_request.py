@@ -28,6 +28,11 @@ MBERT_ADDITIVE_PATTERNS_JAR = join(Path(__file__).parent,
                                    'mBERT-addconditions/mbert-additive-patterns-1.0-SNAPSHOT-jar-with-dependencies.jar')
 ADDITIVE_PATTERNS_FILE_NAME = 'add_predicates.json'
 
+
+IDENTIFIERS_JAR = join(Path(__file__).parent,
+                                   'add-identifiers-in-scope/scopeidsretriever-1.2.3-SNAPSHOT-jar-with-dependencies.jar')
+IDENTIFIERS_FILE_NAME = 'identifiers.json'
+
 LLM_MAP = {
     "codeBERT": CodeBertMlmFillMask,
     "codeT5": CodeT5FillMask
@@ -40,6 +45,7 @@ class MbertAdditivePatternsLocationsRequest:
                  mutants_output_dir=None,
                  locs_file=LOCATIONS_FILE_NAME,
                  add_patterns_mc=ADDITIVE_PATTERNS_FILE_NAME,
+                 ids_json_file_name=IDENTIFIERS_FILE_NAME,
                  pickle_file_name=PREDICTIONS_FILE_NAME,
                  ap_mc_pickle_file_name='ap_mc_' + PREDICTIONS_FILE_NAME,
                  mutants_test_csv_file=MUTANTS_OUTPUT_CSV,
@@ -50,12 +56,14 @@ class MbertAdditivePatternsLocationsRequest:
                  simple_only=False,
                  max_size=MAX_TOKENS,
                  mutant_classes_output_dir=None, patch_diff=False, java_file=False, mask_full_conditions=False,
-                 model=None):
+                 model=None, ids_in_prompt=False):
         self.mask_full_conditions = mask_full_conditions
         self.repo_path: str = str(Path(repo_path).absolute())
         self.file_requests: List[BusinessFileRequest] = file_requests
         self.output_dir = output_dir
         self.locs_output_file = join(output_dir, locs_file)
+        self.ids_json_file = join(output_dir, ids_json_file_name)
+        self.ids_in_prompt = ids_in_prompt
         self.ap_mc_output_file = join(output_dir, add_patterns_mc)
         self.force_reload = force_reload
         self.progress_file = join(output_dir, progress_file)
@@ -83,6 +91,8 @@ class MbertAdditivePatternsLocationsRequest:
     def has_locs_output(self) -> bool:
         return isfile(self.locs_output_file)
 
+    def has_ids_output(self) -> bool:
+        return isfile(self.ids_json_file)
     def has_locs_preds_output(self) -> bool:
         return isfile(self.locs_preds_pickle_file)
 
@@ -129,6 +139,15 @@ class MbertAdditivePatternsLocationsRequest:
             output = self._call_jar(request, jdk_path, mbert_locs_jar_path, vm_options="-DCONDITIONS_AS_TKN=True")
         else:
             output = self._call_jar(request, jdk_path, mbert_locs_jar_path, vm_options="-DCONDITIONS_AS_TKN=False")
+        log.info(output)
+        return self.has_locs_output()
+
+    def _call_ids_jar(self, jdk_path: str, ids_jar_path: str) -> bool:
+        request = self.to_str()
+        if request is None:
+            log.error('Empty request {0}'.format(self.repo_path))
+            return False
+        output = self._call_jar(request, jdk_path, ids_jar_path)
         log.info(output)
         return self.has_locs_output()
 
@@ -182,11 +201,16 @@ class MbertAdditivePatternsLocationsRequest:
                 if not self._call_mbert_locs(jdk_path, mbert_locs_jar_path):
                     self.on_exit('exit_call_mbert_locs')
                     return None
+            if self.ids_in_prompt and not self.has_ids_output():
+                if not self._call_ids_jar(jdk_path, IDENTIFIERS_JAR):
+                    self.on_exit('exit_call_ids_jar')
+                    return None
+
             if not self.simple_only and not self.has_ap_mc_output():
                 if not self._call_mbert_ap_mc(jdk_path, mbert_ap_mc_jar_path):
                     log.error("call_mbert_ap_mc failed!")
             self.postprocess()
-            # self.postprocess() is comnpiling and executing the tests.
+            # self.postprocess() is compiling and executing the tests.
             self.on_exit('done')
             # next lines will make sure that "has_treated_all_mutants" flag is added to the progress file.
             if self.has_treated_all_mutants(self.get_remaining_mutants_to_process()):
@@ -200,6 +224,9 @@ class MbertAdditivePatternsLocationsRequest:
         results: ListFileLocations = None
         if not self.has_locs_output() and not self.has_locs_preds_output():
             log.error('files not found : \n{0} \n{1}'.format(self.locs_output_file, self.locs_preds_pickle_file))
+        if self.ids_in_prompt and not self.has_ids_output():
+            log.error('file not found : \n{0}'.format(self.ids_json_file))
+        #if force reload of prediction hasn't been done
         elif self.force_reload or not self.has_locs_preds_output():
             if self.model is None:
                 model_class = LLM_MAP.get("codeBERT")
@@ -212,7 +239,8 @@ class MbertAdditivePatternsLocationsRequest:
                 except FileExistsError:
                     log.debug("two threads created the directory concurrently.")
             results = predict_json_locs(self.locs_output_file, cbm, self.job_config, max_size=self.pred_max_size,
-                                        batch_size=batch_size, repo_dir=self.repo_path)
+                                        batch_size=batch_size, repo_dir=self.repo_path,
+                                        ids_json_file=self.ids_json_file if self.ids_in_prompt else None)
             json = results.json()
             save_zipped_pickle(json, self.locs_preds_pickle_file)
         else:

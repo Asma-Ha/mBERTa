@@ -62,17 +62,17 @@ def get_args():
 def create_mbert_request(project: MvnProject, files_tests: Dict[BusinessFileRequest, str], tests: str,
                          output_dir: str, max_processes_number: int = 4,
                          simple_only=False, force_reload=False,
-                         mask_full_conditions=False, remove_project_on_exit=True, model=None) -> MvnRequest:
+                         mask_full_conditions=False, remove_project_on_exit=True, model=None, ids_in_prompt=False) -> MvnRequest:
     return MvnRequest(project=project, files_tests_map=files_tests, tests=tests, repo_path=project.repo_path,
                       output_dir=output_dir,
                       max_processes_number=max_processes_number, simple_only=simple_only,
                       force_reload=force_reload, mask_full_conditions=mask_full_conditions,
-                      remove_project_on_exit=remove_project_on_exit, model=model)
+                      remove_project_on_exit=remove_project_on_exit, model=model, ids_in_prompt=ids_in_prompt)
 
 
 def create_request(config, project_cli_infos: RepoCliInfos, reqs: Dict[BusinessFileRequest, str], tests: str,
                    simple_only=False, no_comments=False, force_reload=False,
-                   mask_full_conditions=False, remove_project_on_exit=True, model=None) -> MvnRequest:
+                   mask_full_conditions=False, remove_project_on_exit=True, model=None, ids_in_prompt=False) -> MvnRequest:
     mvn_project = MvnProject(repo_path=project_cli_infos.repo_path,
                              repos_path=os.path.expanduser(config['tmp_large_memory']['repos_path']),
                              project_name=project_cli_infos.project_name,
@@ -91,7 +91,7 @@ def create_request(config, project_cli_infos: RepoCliInfos, reqs: Dict[BusinessF
     return create_mbert_request(mvn_project, reqs, tests, output_dir, config['exec']['max_processes'],
                                 simple_only=simple_only, force_reload=force_reload,
                                 mask_full_conditions=mask_full_conditions,
-                                remove_project_on_exit=remove_project_on_exit, model=model)
+                                remove_project_on_exit=remove_project_on_exit, model=model, ids_in_prompt=ids_in_prompt)
 
 
 # todo refactor config and args parsing, because it starts to get very complex to follow.
@@ -128,10 +128,12 @@ def main_function(conf, cli_args):
     no_comments = 'no_comments' in config['exec'] and config['exec']['no_comments']
     if no_comments and project_cli_infos.git_url is None:
         logging.warning("You are about to remove all the comments from your repo!")
-    # this option adds extra mutants where the full if condition is masked.
+    # this option adds extra mutants where the full if/while/for/do conditions are masked.
     mask_full_conditions = 'mask_full_conditions' in config['exec'] and config['exec']['mask_full_conditions']
     # this option limits the generation to generating only simple mutants without the condition seeding ones.
     simple_only = 'simple_only' in config['exec'] and config['exec']['simple_only']
+    # this option adds list of identifiers to the model input
+    ids_in_prompt = 'augment_prompt_with_ids' in config['exec'] and config['exec']['augment_prompt_with_ids']
     # this option sets the model to use for predictions
     if 'model_name' in config['exec']['language_model'] and config['exec']['language_model']['model_name']:
         model = config['exec']['language_model']['model_name']
@@ -145,7 +147,7 @@ def main_function(conf, cli_args):
     request: MvnRequest = create_request(config, project_cli_infos, reqs, tests, simple_only=simple_only,
                                          no_comments=no_comments,
                                          mask_full_conditions=mask_full_conditions,
-                                         remove_project_on_exit=remove_project_on_exit, model=model)
+                                         remove_project_on_exit=remove_project_on_exit, model=model, ids_in_prompt=ids_in_prompt)
     request.call(os.path.expanduser(config['java']['home11']))
 
 
