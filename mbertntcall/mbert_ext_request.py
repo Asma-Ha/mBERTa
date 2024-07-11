@@ -9,7 +9,7 @@ from typing import List
 import pandas as pd
 from pandas import DataFrame
 
-from cb import PREDICTIONS_FILE_NAME, predict_json_locs, CodeBertMlmFillMask, ListFileLocations, CodeT5FillMask
+from cb import PREDICTIONS_FILE_NAME, predict_json_locs, CodeBertMlmFillMask, ListFileLocations, CodeT5FillMask, CodeLlamaFillMask
 from cb.code_bert_mlm import MAX_TOKENS, MAX_BATCH_SIZE
 from cb.job_config import NOCOSINE_JOB_CONFIG
 from cb.replacement_mutants import ReplacementMutant
@@ -30,12 +30,13 @@ ADDITIVE_PATTERNS_FILE_NAME = 'add_predicates.json'
 
 
 IDENTIFIERS_JAR = join(Path(__file__).parent,
-                                   'add-identifiers-in-scope/scopeidsretriever-1.2.3-SNAPSHOT-jar-with-dependencies.jar')
+                                   'add-identifiers-in-scope/scopeidsretriever-1.2.4-SNAPSHOT-jar-with-dependencies.jar')
 IDENTIFIERS_FILE_NAME = 'identifiers.json'
 
 LLM_MAP = {
     "codeBERT": CodeBertMlmFillMask,
-    "codeT5": CodeT5FillMask
+    "codeT5": CodeT5FillMask,
+    "codeLlama" : CodeLlamaFillMask
 }
 
 
@@ -233,6 +234,8 @@ class MbertAdditivePatternsLocationsRequest:
             else:
                 model_class = LLM_MAP.get(self.model)
             cbm = model_class()
+            self.pred_max_size = cbm.max_tokens
+            print("Model ", type(cbm))
             if not isdir(self.preds_output_dir):
                 try:
                     makedirs(self.preds_output_dir)
